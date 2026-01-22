@@ -54,47 +54,43 @@ function CheckoutForm({ total }: { total: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const [processing, setProcessing] = useState(false);
-  const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] = useState(false);
+  const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] =
+    useState(false);
   const [cardComplete, setCardComplete] = useState(false);
-  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
-  const amountInUsd = Math.floor(total); // Avoid decimal fractions in amount
-  const paymentRequestInstance = stripe?.paymentRequest({
+  // Convert total to cents and round it to avoid precision issues
+  const amountInCents = Math.round(total * 100); // Total in cents
+
+  const paymentRequest = stripe?.paymentRequest({
     country: "US",
     currency: "usd",
     total: {
       label: "Total",
-      amount: amountInUsd * 100, // Amount in cents
+      amount: amountInCents, // Amount in cents
     },
     requestPayerName: true,
     requestPayerEmail: true,
   });
 
-  // Initialize paymentRequest only when the stripe object is available
   useEffect(() => {
-    if (paymentRequestInstance) {
-      setPaymentRequest(paymentRequestInstance);
-
-      // Check if the payment request can be made (supports Apple Pay, Google Pay, etc.)
-      paymentRequestInstance.canMakePayment().then((result) => {
-        setPaymentRequestButtonAvailable(!!result); // Only show the button if available
-      }).catch((error) => {
-        console.error("Error checking payment request availability:", error);
-        setPaymentRequestButtonAvailable(false);
+    if (paymentRequest) {
+      paymentRequest.canMakePayment().then((result) => {
+        setPaymentRequestButtonAvailable(!!result);
       });
     }
-  }, [paymentRequestInstance]);
+  }, [paymentRequest]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setProcessing(true);
 
+    // Send amount in cents to backend
     const res = await fetch("/api/create-payment-intent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: total * 100 }), // Total amount in cents
+      body: JSON.stringify({ amount: amountInCents }), // Send amount in cents
     });
 
     const { clientSecret } = await res.json();
@@ -131,24 +127,21 @@ function CheckoutForm({ total }: { total: number }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <CardElement className="p-5 border-2 mb-2" onChange={handleCardChange} />
-
-      {/* Only render PaymentRequestButtonElement after canMakePayment() is resolved */}
+      <CardElement className="p-5 border-2 mb-2 " onChange={handleCardChange} />
       {paymentRequestButtonAvailable && paymentRequest && (
         <PaymentRequestButtonElement
           options={{
             paymentRequest: paymentRequest,
             style: {
               paymentRequestButton: {
-                theme: "dark", // Optional: Adjust button appearance
+                theme: "dark",
                 height: "64px",
-                type: "default", // Optional: Button style
+                type: "default",
               },
             },
           }}
         />
       )}
-
       <Button
         className="w-full"
         disabled={!stripe || processing || !cardComplete} // Disable Pay Now if card is incomplete
