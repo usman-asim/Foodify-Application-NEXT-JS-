@@ -12,15 +12,12 @@ type UploadExampleProps = {
   setImageUrl: (url: string) => void;
 };
 
-// UploadExample component demonstrates file uploading using ImageKit's Next.js SDK.
 const UploadExample = ({ setImageUrl }:UploadExampleProps) => {
   // State to keep track of the current upload progress (percentage)
   const [progress, setProgress] = useState(0);
 
-  // Create a ref for the file input element to access its files easily
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Create an AbortController instance to provide an option to cancel the upload if needed.
   const abortController = new AbortController();
 
   /**
@@ -34,22 +31,18 @@ const UploadExample = ({ setImageUrl }:UploadExampleProps) => {
    */
   const authenticator = async () => {
     try {
-      // Perform the request to the upload authentication endpoint.
       const response = await fetch("/api/upload-auth");
       if (!response.ok) {
-        // If the server response is not successful, extract the error text for debugging.
         const errorText = await response.text();
         throw new Error(
           `Request failed with status ${response.status}: ${errorText}`,
         );
       }
 
-      // Parse and destructure the response JSON for upload credentials.
       const data = await response.json();
       const { signature, expire, token, publicKey } = data;
       return { signature, expire, token, publicKey };
     } catch (error) {
-      // Log the original error for debugging before rethrowing a new error.
       console.error("Authentication error:", error);
       throw new Error("Authentication request failed");
     }

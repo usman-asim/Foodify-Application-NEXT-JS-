@@ -133,7 +133,6 @@ const handleurl=(formData:FormData)=>{
             <div className="space-y-2">
               <UploadExample
                 setImageUrl={setImageUrl}
-                resetKey={uploadResetKey}
               />
             </div>
 

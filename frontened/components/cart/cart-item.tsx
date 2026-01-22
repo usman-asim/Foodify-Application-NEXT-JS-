@@ -5,7 +5,7 @@ import { Image, ImageKitProvider } from "@imagekit/next";
 import { Minus, Plus, X } from "lucide-react";
 // import Image from "next/image";
 
-export function CartItem({ item }: { item: Items }) {
+export function CartItem({ item }: { item: Item }) {
   const removeFromCart = useStore((store) => store.removeFromCart);
   const increaseQuantity = useStore((store) => store.increaseitem);
   const decreaseQuantity = useStore((store) => store.decreaseitem);
