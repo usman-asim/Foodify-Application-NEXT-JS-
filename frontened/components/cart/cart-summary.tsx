@@ -75,7 +75,7 @@ function CheckoutForm({ total }: { total: number }) {
   useEffect(() => {
     if (paymentRequest) {
       paymentRequest.canMakePayment().then((result) => {
-        setPaymentRequestButtonAvailable(result); 
+        setPaymentRequestButtonAvailable(!!result); 
       });
     }
   }, [paymentRequest]);
@@ -94,22 +94,32 @@ function CheckoutForm({ total }: { total: number }) {
 
     const { clientSecret } = await res.json();
 
-    const { error, paymentIntent } = await stripe?.confirmCardPayment(
-      clientSecret,
-      {
-        payment_method: {
-          card: elements.getElement(CardElement), 
-          payment_request_button: elements.getElement(
-            PaymentRequestButtonElement,
-          ),
-        },
-      },
-    );
-
-    if (error) {
-      console.log(error.message);
+    if (!stripe) {
       setProcessing(false);
-    } else if (paymentIntent?.status === "succeeded") {
+      return;
+    }
+
+    if (!elements) {
+      setProcessing(false);
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setProcessing(false);
+      return;
+    }
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement,
+      },
+    });
+
+    if (result?.error) {
+      console.log(result.error.message);
+      setProcessing(false);
+    } else if (result?.paymentIntent?.status === "succeeded") {
       console.log("Payment successful!");
       setProcessing(false);
     }
@@ -123,7 +133,7 @@ function CheckoutForm({ total }: { total: number }) {
     <form onSubmit={handleSubmit}>
       <CardElement className="p-5 border-2 mb-2 " onChange={handleCardChange} />{" "}
      
-      {paymentRequestButtonAvailable && (
+      {paymentRequestButtonAvailable && paymentRequest && (
         <PaymentRequestButtonElement
           options={{
             paymentRequest: paymentRequest,
@@ -132,7 +142,6 @@ function CheckoutForm({ total }: { total: number }) {
                 theme: "dark", 
                 height: "64px",     
                 type: "default", 
-                width: "auto", 
               },
             },
           }}

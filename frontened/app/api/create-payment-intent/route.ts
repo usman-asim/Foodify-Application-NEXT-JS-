@@ -1,11 +1,11 @@
-// app/api/create-payment-intent/route.js
 import Stripe from "stripe";
+import { NextRequest } from "next/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2020-08-27",
+  apiVersion: "2025-12-15.clover",
 });
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   const { amount } = await req.json();
 
   try {
@@ -24,7 +24,8 @@ export async function POST(req) {
       },
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
