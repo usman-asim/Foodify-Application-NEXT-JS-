@@ -45,7 +45,7 @@ const TestimonialSection = () => {
     <section className="py-20">
       <div className="text-center">
         <h1 className="text-4xl font-bold">What our Client Says</h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground px-1">
           Don't just take our word for it - hear from our satisfied customers
         </p>
       </div>

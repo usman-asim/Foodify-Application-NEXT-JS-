@@ -3,8 +3,8 @@ import { Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t py-8">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-secondary text-secondary-foreground border-t py-8 ">
+      <div className="   flex flex-col md:flex-row  justify-between px-5 md:px-15 gap-8 ">
         {/* Restaurant Info */}
         <div className="space-y-2">
           <h3 className="text-lg font-bold">Foodify</h3>

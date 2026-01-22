@@ -9,7 +9,7 @@ const CtaSection = () => {
         <h2 className="text-3xl font-bold mb-4">
           Ready to Experience Our Cuisine?
         </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto">
+        <p className="text-lg mb-8 max-w-2xl mx-auto px-2">
           Book your table now or order online for pickup
         </p>
         <div className="flex gap-4 justify-center">
