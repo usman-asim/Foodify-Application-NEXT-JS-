@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Upload } from "lucide-react";
+import { ChevronLeft, Plus, Upload } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -48,10 +48,15 @@ const handleurl=(formData:FormData)=>{
       <Card className="w-full max-w-xl">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
-            <h1>Add New Menu Item</h1>
-            <Link href={"/admin/menu"}>
-              <Button variant={"link"}>All menu list</Button>
+            <Link href={"/admin/menu"} className="p-0 ">
+              <button className="flex items-center justify-center" ><ChevronLeft size={23}/> All menu list</button>
             </Link>
+
+            <button className="tracking-tight p-1 leading-tight text-sm border flex items-center justify-center rounded-sm px-3 md:text-xl font-semibold bg-black text-white">
+              {" "}
+              <Link href="/admin/menu/create">+ New Menu Item</Link>
+            </button>
+
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -131,9 +136,7 @@ const handleurl=(formData:FormData)=>{
 
             {/* Upload */}
             <div className="space-y-2">
-              <UploadExample
-                setImageUrl={setImageUrl}
-              />
+              <UploadExample setImageUrl={setImageUrl} />
             </div>
 
             {/* Submit */}

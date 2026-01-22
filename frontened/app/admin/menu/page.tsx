@@ -8,10 +8,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// 
 import { prisma } from "@/lib/prisma";
 import DeleteMenuButton from "@/components/DeleteMenuButton";
 import { UpdateMenuButton } from "@/components/UpdateMenuButton";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 
 
@@ -23,11 +25,13 @@ const page = async () => {
   return (
     <div className="lg:col-span-2 my-4 container mx-auto p-2 px-7 mt-5">
       <div className="flex justify-between ">
-        <h1 className="font-bold text-3xl">Our Menu</h1>
-        <h2 className="tracking-tight leading-tight hover:underline text-2xl font-bold">
+        <Link href="/" className="font-bold text-xl md:text-3xl hover:background-gray-100 flex items-center gap-2">
+          <ChevronLeft size={30}></ChevronLeft>
+        </Link>
+        <button className="p-1 tracking-tight leading-tight text-sm border flex items-center justify-center rounded-sm px-3 md:text-xl font-semibold bg-black text-white">
           {" "}
           <Link href="/admin/menu/create">Create New Menu</Link>
-        </h2>
+        </button>
       </div>
 
       <Card className="my-2">
