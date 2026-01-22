@@ -58,39 +58,40 @@ function CheckoutForm({ total }: { total: number }) {
     useState(false);
   const [cardComplete, setCardComplete] = useState(false);
 
-  // Convert total to cents and round it to avoid precision issues
-  const amountInCents = Math.round(total * 100); // Total in cents
+  const amountInCents = Math.round(total * 100);
 
-  const paymentRequest = stripe?.paymentRequest({
-    country: "US",
-    currency: "usd",
-    total: {
-      label: "Total",
-      amount: amountInCents, // Amount in cents
-    },
-    requestPayerName: true,
-    requestPayerEmail: true,
-  });
+  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   useEffect(() => {
-    if (paymentRequest) {
-      paymentRequest.canMakePayment().then((result) => {
+    if (stripe) {
+      const pr = stripe.paymentRequest({
+        country: "US",
+        currency: "usd",
+        total: {
+          label: "Total",
+          amount: amountInCents,
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+      });
+
+      pr.canMakePayment().then((result) => {
         setPaymentRequestButtonAvailable(!!result);
+        setPaymentRequest(pr);
       });
     }
-  }, [paymentRequest]);
+  }, [stripe, amountInCents]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setProcessing(true);
 
-    // Send amount in cents to backend
     const res = await fetch("/api/create-payment-intent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: amountInCents }), // Send amount in cents
+      body: JSON.stringify({ amount: amountInCents }),
     });
 
     const { clientSecret } = await res.json();
@@ -122,7 +123,7 @@ function CheckoutForm({ total }: { total: number }) {
   };
 
   const handleCardChange = (event: any) => {
-    setCardComplete(event.complete); // Update card completion state
+    setCardComplete(event.complete);
   };
 
   return (
@@ -142,9 +143,10 @@ function CheckoutForm({ total }: { total: number }) {
           }}
         />
       )}
+
       <Button
         className="w-full"
-        disabled={!stripe || processing || !cardComplete} // Disable Pay Now if card is incomplete
+        disabled={!stripe || processing || !cardComplete}
       >
         {processing ? "Processing..." : "Pay Now"}
       </Button>
