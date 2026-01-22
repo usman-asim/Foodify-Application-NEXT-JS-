@@ -50,40 +50,40 @@ export function CartSummary() {
     </div>
   );
 }
-
 function CheckoutForm({ total }: { total: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const [processing, setProcessing] = useState(false);
-  const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] =
-    useState(false);
+  const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] = useState(false);
   const [cardComplete, setCardComplete] = useState(false);
+  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   const amountInUsd = Math.floor(total); // Avoid decimal fractions in amount
-  const paymentRequest = stripe?.paymentRequest({
+  const paymentRequestInstance = stripe?.paymentRequest({
     country: "US",
     currency: "usd",
     total: {
       label: "Total",
-      amount: amountInUsd * 100, // Amount must be in cents
+      amount: amountInUsd * 100, // Amount in cents
     },
     requestPayerName: true,
     requestPayerEmail: true,
   });
 
+  // Initialize paymentRequest only when the stripe object is available
   useEffect(() => {
-    if (paymentRequest) {
-      paymentRequest
-        .canMakePayment()
-        .then((result) => {
-          // Ensure the button is only available if result is true
-          setPaymentRequestButtonAvailable(!!result);
-        })
-        .catch((error) => {
-          console.error("Error checking payment request availability:", error);
-        });
+    if (paymentRequestInstance) {
+      setPaymentRequest(paymentRequestInstance);
+
+      // Check if the payment request can be made (supports Apple Pay, Google Pay, etc.)
+      paymentRequestInstance.canMakePayment().then((result) => {
+        setPaymentRequestButtonAvailable(!!result); // Only show the button if available
+      }).catch((error) => {
+        console.error("Error checking payment request availability:", error);
+        setPaymentRequestButtonAvailable(false);
+      });
     }
-  }, [paymentRequest]);
+  }, [paymentRequestInstance]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -133,7 +133,7 @@ function CheckoutForm({ total }: { total: number }) {
     <form onSubmit={handleSubmit}>
       <CardElement className="p-5 border-2 mb-2" onChange={handleCardChange} />
 
-      {/* Conditionally render PaymentRequestButtonElement if available */}
+      {/* Only render PaymentRequestButtonElement after canMakePayment() is resolved */}
       {paymentRequestButtonAvailable && paymentRequest && (
         <PaymentRequestButtonElement
           options={{
@@ -158,4 +158,3 @@ function CheckoutForm({ total }: { total: number }) {
     </form>
   );
 }
-
