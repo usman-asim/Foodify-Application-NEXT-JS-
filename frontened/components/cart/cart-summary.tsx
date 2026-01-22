@@ -115,9 +115,10 @@ function CheckoutForm({ total }: { total: number }) {
 
     if (result?.error) {
       console.log(result.error.message);
+      alert("Payment failed: " + result.error.message);
       setProcessing(false);
     } else if (result?.paymentIntent?.status === "succeeded") {
-      console.log("Payment successful!");
+     alert("Payment successful!");
       setProcessing(false);
     }
   };
@@ -153,3 +154,4 @@ function CheckoutForm({ total }: { total: number }) {
     </form>
   );
 }
+
