@@ -57,26 +57,31 @@ function CheckoutForm({ total }: { total: number }) {
   const [processing, setProcessing] = useState(false);
   const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] =
     useState(false);
-  const [cardComplete, setCardComplete] = useState(false); 
+  const [cardComplete, setCardComplete] = useState(false);
 
-  const amountinusdt = Math.floor(total); 
-
+  const amountInUsd = Math.floor(total); // Avoid decimal fractions in amount
   const paymentRequest = stripe?.paymentRequest({
     country: "US",
-    currency: "usd", 
+    currency: "usd",
     total: {
-      label: "Total", 
-      amount: amountinusdt * 100, 
+      label: "Total",
+      amount: amountInUsd * 100, // Amount must be in cents
     },
     requestPayerName: true,
-    requestPayerEmail: true, 
+    requestPayerEmail: true,
   });
 
   useEffect(() => {
     if (paymentRequest) {
-      paymentRequest.canMakePayment().then((result) => {
-        setPaymentRequestButtonAvailable(!!result); 
-      });
+      paymentRequest
+        .canMakePayment()
+        .then((result) => {
+          // Ensure the button is only available if result is true
+          setPaymentRequestButtonAvailable(!!result);
+        })
+        .catch((error) => {
+          console.error("Error checking payment request availability:", error);
+        });
     }
   }, [paymentRequest]);
 
@@ -89,17 +94,12 @@ function CheckoutForm({ total }: { total: number }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: total * 100 }), 
+      body: JSON.stringify({ amount: total * 100 }), // Total amount in cents
     });
 
     const { clientSecret } = await res.json();
 
-    if (!stripe) {
-      setProcessing(false);
-      return;
-    }
-
-    if (!elements) {
+    if (!stripe || !elements) {
       setProcessing(false);
       return;
     }
@@ -126,27 +126,29 @@ function CheckoutForm({ total }: { total: number }) {
   };
 
   const handleCardChange = (event: any) => {
-    setCardComplete(event.complete); 
+    setCardComplete(event.complete); // Update card completion state
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <CardElement className="p-5 border-2 mb-2 " onChange={handleCardChange} />{" "}
-     
+      <CardElement className="p-5 border-2 mb-2" onChange={handleCardChange} />
+
+      {/* Conditionally render PaymentRequestButtonElement if available */}
       {paymentRequestButtonAvailable && paymentRequest && (
         <PaymentRequestButtonElement
           options={{
             paymentRequest: paymentRequest,
             style: {
               paymentRequestButton: {
-                theme: "dark", 
-                height: "64px",     
-                type: "default", 
+                theme: "dark", // Optional: Adjust button appearance
+                height: "64px",
+                type: "default", // Optional: Button style
               },
             },
           }}
         />
       )}
+
       <Button
         className="w-full"
         disabled={!stripe || processing || !cardComplete} // Disable Pay Now if card is incomplete
@@ -156,3 +158,4 @@ function CheckoutForm({ total }: { total: number }) {
     </form>
   );
 }
+
