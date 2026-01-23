@@ -30,11 +30,11 @@ export default async function MenuPreview() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {menuItems.map((item, i) => (
-          <div
+           <div
             key={item.id}
             className="group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow"
           >
-            <div className="relative h-64 ">
+            <div className="relative h-54 ">
               <ImageKitProvider urlEndpoint="https://ik.imagekit.io/oax2cnzhr">
                 <Image
                   src={item?.imageUrl ?? "/fallback-image.jpg"}
@@ -42,7 +42,7 @@ export default async function MenuPreview() {
                   width={1000}
                   height={400}
                   alt="Picture of the menu"
-                  className="object-cover  group-hover:scale-105 transition-transform"
+                  className=" w-full h-48 object-cover hover:scale-105 transition-all duration-300 ease-in-out"
                 />
               </ImageKitProvider>
             </div>
@@ -72,4 +72,5 @@ export default async function MenuPreview() {
       </div>
     </section>
   );
+
 }
