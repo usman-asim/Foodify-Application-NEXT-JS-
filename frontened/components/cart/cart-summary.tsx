@@ -50,35 +50,37 @@ export function CartSummary() {
     </div>
   );
 }
-
 function CheckoutForm({ total }: { total: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const [processing, setProcessing] = useState(false);
   const [paymentRequestButtonAvailable, setPaymentRequestButtonAvailable] =
     useState(false);
-  const [cardComplete, setCardComplete] = useState(false); 
+  const [cardComplete, setCardComplete] = useState(false);
 
-  const amountinusdt = Math.floor(total); 
+  const amountInCents = Math.round(total * 100);
 
-  const paymentRequest = stripe?.paymentRequest({
-    country: "US",
-    currency: "usd", 
-    total: {
-      label: "Total", 
-      amount: amountinusdt * 100, 
-    },
-    requestPayerName: true,
-    requestPayerEmail: true, 
-  });
+  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   useEffect(() => {
-    if (paymentRequest) {
-      paymentRequest.canMakePayment().then((result) => {
-        setPaymentRequestButtonAvailable(!!result); 
+    if (stripe) {
+      const pr = stripe.paymentRequest({
+        country: "US",
+        currency: "usd",
+        total: {
+          label: "Total",
+          amount: amountInCents,
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+      });
+
+      pr.canMakePayment().then((result) => {
+        setPaymentRequestButtonAvailable(!!result);
+        setPaymentRequest(pr);
       });
     }
-  }, [paymentRequest]);
+  }, [stripe, amountInCents]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -89,17 +91,12 @@ function CheckoutForm({ total }: { total: number }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: total * 100 }), 
+      body: JSON.stringify({ amount: amountInCents }),
     });
 
     const { clientSecret } = await res.json();
 
-    if (!stripe) {
-      setProcessing(false);
-      return;
-    }
-
-    if (!elements) {
+    if (!stripe || !elements) {
       setProcessing(false);
       return;
     }
@@ -118,41 +115,43 @@ function CheckoutForm({ total }: { total: number }) {
 
     if (result?.error) {
       console.log(result.error.message);
+      alert("Payment failed: " + result.error.message);
       setProcessing(false);
     } else if (result?.paymentIntent?.status === "succeeded") {
-      console.log("Payment successful!");
+     alert("Payment successful!");
       setProcessing(false);
     }
   };
 
   const handleCardChange = (event: any) => {
-    setCardComplete(event.complete); 
+    setCardComplete(event.complete);
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <CardElement className="p-5 border-2 mb-2 " onChange={handleCardChange} />{" "}
-     
+      <CardElement className="p-5 border-2 mb-2 " onChange={handleCardChange} />
       {paymentRequestButtonAvailable && paymentRequest && (
         <PaymentRequestButtonElement
           options={{
             paymentRequest: paymentRequest,
             style: {
               paymentRequestButton: {
-                theme: "dark", 
-                height: "64px",     
-                type: "default", 
+                theme: "dark",
+                height: "64px",
+                type: "default",
               },
             },
           }}
         />
       )}
+
       <Button
         className="w-full"
-        disabled={!stripe || processing || !cardComplete} // Disable Pay Now if card is incomplete
+        disabled={!stripe || processing || !cardComplete}
       >
         {processing ? "Processing..." : "Pay Now"}
       </Button>
     </form>
   );
 }
+
