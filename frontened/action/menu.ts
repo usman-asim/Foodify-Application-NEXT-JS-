@@ -55,8 +55,8 @@ export const CeateMenuAction = async (
         category: result.data.category,
       },
     });
-    revalidatePath("/admin/menu/create")
-    
+revalidatePath("/admin/menu");
+    revalidatePath("/menu")    
     return { success:true, error: {} };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -74,4 +74,5 @@ export const CeateMenuAction = async (
     };
   }
 };
+
 
