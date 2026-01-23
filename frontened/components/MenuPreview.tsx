@@ -1,24 +1,29 @@
 
-// app/components/MenuPreview.tsx
+"use client";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Fullscreen, Star } from "lucide-react";
 import { Image, ImageKitProvider } from "@imagekit/next";
+import { useEffect, useState } from "react";
+import { MenuItem } from "@/lib/generated/prisma";
 
 export default async function MenuPreview() {
-  const menuItems = await prisma.menuItem.findMany({
-    orderBy: { created_at: "desc" },
-    take: 3,
-    select: {
-      id: true,
-      name: true,
-      imageUrl: true,
-      description: true,
-      price: true,
-    },
-  });
-  
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await fetch("/api/menu");
+        const data = await response.json();
+        setMenuItems(data); 
+      } catch (error) {
+        console.error("Error fetching menu items:", error);
+      }
+    };
+
+    fetchMenuItems();
+  }, []);
   return (
     <section className="container mx-auto py-16">
       <div className="text-center mb-12">

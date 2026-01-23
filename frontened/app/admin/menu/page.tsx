@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,24 +10,38 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// 
+//
 import { prisma } from "@/lib/prisma";
 import DeleteMenuButton from "@/components/DeleteMenuButton";
 import { UpdateMenuButton } from "@/components/UpdateMenuButton";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-
-
+import { MenuItem } from "@/lib/generated/prisma";
 
 const page = async () => {
-  const menuItems = await prisma.menuItem.findMany({
-    orderBy: { created_at: "desc" },
-  });
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
+  useEffect(() => {
+    // Fetch data from the API route /api/menu
+    const fetchMenuItems = async () => {
+      try {
+        const response = await fetch("/api/menu");
+        const data = await response.json();
+        setMenuItems(data); // Set the data into state
+      } catch (error) {
+        console.error("Error fetching menu items:", error);
+      }
+    };
+
+    fetchMenuItems();
+  }, []);
   return (
     <div className="lg:col-span-2 my-4 container mx-auto p-2 px-7 mt-5">
       <div className="flex justify-between ">
-        <Link href="/" className="font-bold text-xl md:text-3xl hover:background-gray-100 flex items-center gap-2">
+        <Link
+          href="/"
+          className="font-bold text-xl md:text-3xl hover:background-gray-100 flex items-center gap-2"
+        >
           <ChevronLeft size={30}></ChevronLeft>
         </Link>
         <button className="p-1 tracking-tight leading-tight text-sm border flex items-center justify-center rounded-sm px-3 md:text-xl font-semibold bg-black text-white">
