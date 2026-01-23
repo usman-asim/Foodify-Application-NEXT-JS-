@@ -10,9 +10,10 @@ export const deleteMenuAction = async (id: string) => {
       where: { id },
     });
 
-    // Revalidate the path to update the cache
     revalidatePath("/admin/menu");
     revalidatePath("/menu");
+    revalidatePath("/");
+
     redirect("/admin/menu");
     
 
@@ -21,4 +22,5 @@ export const deleteMenuAction = async (id: string) => {
     throw new Error("Failed to delete menu item");
   }
 };
+
 
