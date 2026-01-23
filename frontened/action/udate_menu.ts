@@ -48,6 +48,8 @@ export async function updateMenu(
 
     revalidatePath("/admin/menu");
     revalidatePath("/menu");
+    revalidatePath("/");
+
     return {
         success: true,
         errors: {},
@@ -64,6 +66,7 @@ export async function updateMenu(
     };
   }
 }
+
 
 
 
