@@ -22,7 +22,7 @@ const formSchema = z.object({
   category: z.string().min(1, { message: "Category is required" }),
   price: z.coerce
     .number()
-    .min(0.01, { message: "Price must be at least $0.01" }),
+    .min(0.01, { message: "Price must be at least min $0.01" }),
   imageUrl: z
     .string()
     .url({ message: "Image must be a valid URL" })
@@ -74,3 +74,4 @@ export const CeateMenuAction = async (
     };
   }
 };
+
